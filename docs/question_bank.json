@@ -1,0 +1,149 @@
+{
+  "question_bank": {
+    "description": "ZED Chatbot Question Bank — 50 questions categorised by topic. Use these to test the chatbot before demo.",
+    "categories": {
+      "basics": {
+        "label": "What is ZED",
+        "questions": [
+          "What is ZED certification?",
+          "What does Zero Defect Zero Effect mean?",
+          "Who runs the ZED scheme?",
+          "Is ZED certification mandatory for MSMEs?",
+          "What is the goal of the ZED scheme?",
+          "Where can I apply for ZED?",
+          "What is the difference between ZED and ISO certification?"
+        ]
+      },
+      "eligibility": {
+        "label": "Eligibility",
+        "questions": [
+          "Who is eligible for ZED certification?",
+          "Do I need UDYAM registration for ZED?",
+          "Can a service sector enterprise apply for ZED?",
+          "My turnover is 50 lakhs — am I a micro or small enterprise?",
+          "Can a startup apply for ZED?",
+          "I am not registered on UDYAM yet. What should I do first?"
+        ]
+      },
+      "levels": {
+        "label": "Bronze / Silver / Gold",
+        "questions": [
+          "What is the difference between Bronze, Silver, and Gold?",
+          "Which level should I start with?",
+          "Can I apply directly for Gold without Bronze?",
+          "How long does Bronze certification take?",
+          "Is there a site visit for Bronze certification?",
+          "What happens after I get Bronze — how do I move to Silver?",
+          "How long is the ZED certificate valid?"
+        ]
+      },
+      "process": {
+        "label": "How to Apply",
+        "questions": [
+          "What are the steps to apply for Bronze certification?",
+          "How do I take the ZED Pledge?",
+          "What is the ZED Pledge?",
+          "What is KAWACH or WASH certification?",
+          "How do I login to the ZED portal?",
+          "What is the assessment process for Bronze?",
+          "Who does the assessment for ZED certification?",
+          "How long after applying will I get the certificate?"
+        ]
+      },
+      "documents": {
+        "label": "Documents Needed",
+        "questions": [
+          "What documents do I need for Bronze certification?",
+          "Is a quality policy document required for Bronze?",
+          "Can I upload a draft quality policy or does it need to be final?",
+          "How many photos of my factory do I need to upload?",
+          "Do I need to upload GST certificate if I am not registered for GST?",
+          "What is an organisational chart and how do I make one?",
+          "Where do I upload documents — on the ZED portal?"
+        ]
+      },
+      "subsidy": {
+        "label": "Subsidy and Cost",
+        "questions": [
+          "How much subsidy can I get for ZED certification?",
+          "I am a micro enterprise — how much subsidy will I receive?",
+          "My enterprise is women-owned — do I get extra subsidy?",
+          "I am from Assam — do I get any additional benefit?",
+          "When is the subsidy paid — before or after certification?",
+          "Is there any fee to take the ZED Pledge?",
+          "What is the total cost of getting Bronze certification?"
+        ]
+      },
+      "parameters": {
+        "label": "ZED Parameters and Scoring",
+        "questions": [
+          "What are the 10 ZED parameters?",
+          "Which parameter has the highest weightage?",
+          "What is 5S — can you explain it simply?",
+          "Do I need a full QMS system for Bronze?",
+          "What does energy conservation mean in ZED context?",
+          "I already have ISO 9001 — does that help in ZED?",
+          "Which ISO certificates waive ZED parameters?",
+          "I have FSSAI certificate — which ZED parameters are waived?"
+        ]
+      },
+      "sectors": {
+        "label": "Sector-Specific",
+        "questions": [
+          "I manufacture textiles — which guidance document should I read?",
+          "I am in the food processing sector — is there a specific ZED guide?",
+          "My NIC code is 25 — which guidance document applies to me?",
+          "Where can I download the sector guidance documents?",
+          "I am in the pharma sector — what specific parameters apply to me?"
+        ]
+      },
+      "benefits": {
+        "label": "Benefits",
+        "questions": [
+          "What are the benefits of ZED certification?",
+          "Will ZED certification help me get government tenders?",
+          "Does ZED certification help in getting bank loans?",
+          "What is the handholding support mentioned in ZED?"
+        ]
+      }
+    }
+  },
+  "quick_suggestions": [
+    "How to apply for Bronze?",
+    "What documents do I need?",
+    "How much subsidy will I get?",
+    "What is the ZED Pledge?",
+    "Which ISO certs waive ZED params?",
+    "How long does Bronze take?"
+  ],
+  "test_scenarios": {
+    "description": "Use these to test chatbot before showing to officers",
+    "scenarios": [
+      {
+        "id": 1,
+        "user_says": "I am a small textile enterprise in Rajasthan. What should I do first?",
+        "expected_topics": ["UDYAM registration", "ZED Pledge", "Bronze level", "NIC 13 guidance document"]
+      },
+      {
+        "id": 2,
+        "user_says": "I already have ISO 9001. Does this help in ZED?",
+        "expected_topics": ["ISO 9001 waives QMS parameter", "20% weight waived"]
+      },
+      {
+        "id": 3,
+        "user_says": "My enterprise is women-owned and micro. How much subsidy?",
+        "expected_topics": ["80% base", "10% extra", "up to 90%"]
+      },
+      {
+        "id": 4,
+        "user_says": "What documents do I need to upload for Bronze?",
+        "expected_topics": ["Udyam cert", "PAN", "factory photos", "quality policy"]
+      },
+      {
+        "id": 5,
+        "user_says": "How many months does Bronze certification take?",
+        "expected_topics": ["1 to 3 months", "desktop assessment"]
+      }
+    ]
+  }
+}

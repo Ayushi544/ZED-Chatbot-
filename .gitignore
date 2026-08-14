@@ -1,0 +1,12 @@
+# Never commit these
+.env
+*.env
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+chroma_db/
+*.db
+node_modules/
+.venv/
+venv/
