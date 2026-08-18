@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python -m uvicorn main:app --port 8001)",
-      "Bash(curl -s http://127.0.0.1:8001/docs -o /dev/null -w \"%{http_code}\\\\n\")",
-      "Bash(curl -s http://127.0.0.1:8001/ -o /dev/null -w \"HTTP:%{http_code} SIZE:%{size_download}\\\\n\")"
-    ]
-  }
-}
