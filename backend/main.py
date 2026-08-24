@@ -125,7 +125,7 @@ def call_groq(messages: list, max_tokens: int = 700) -> str:
         return None
     try:
         res = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=messages,
             max_tokens=max_tokens,
             temperature=0.4,
