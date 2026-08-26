@@ -23,14 +23,22 @@ except ImportError:
     FAISS_AVAILABLE = False
     print("[WARN] faiss-cpu not installed. Using fallback retrieval.")
 
-# ── Try loading sentence-transformers ──
-try:
-    from sentence_transformers import SentenceTransformer
-    _embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    EMBEDDER_AVAILABLE = True
-except Exception:
-    EMBEDDER_AVAILABLE = False
-    print("[WARN] sentence-transformers not available. Using keyword fallback.")
+# ── Lazy load sentence-transformers ──
+_embedder = None
+EMBEDDER_AVAILABLE = False
+
+def get_embedder():
+    global _embedder, EMBEDDER_AVAILABLE
+    if _embedder is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+            EMBEDDER_AVAILABLE = True
+        except Exception as e:
+            print(f"[WARN] sentence-transformers not available: {e}")
+            EMBEDDER_AVAILABLE = False
+    return _embedder, EMBEDDER_AVAILABLE
+
 
 VECTORSTORE = Path(__file__).parent / "vectorstore"
 INDEX_PATH  = VECTORSTORE / "zed.index"
@@ -215,9 +223,13 @@ def retrieve(query: str, top_k: int = 5) -> tuple[str, str]:
     - Falls back to keyword search if no good FAISS matches
     """
     # ── Real FAISS retrieval ──
-    if INDEX_LOADED and EMBEDDER_AVAILABLE and _index is not None:
+    if INDEX_LOADED and _index is not None:
+        embedder, available = get_embedder()
+        if not available:
+            return keyword_fallback(query), "ZED Knowledge Base (fallback)"
+        
         try:
-            q_vec = _embedder.encode([query])
+            q_vec = embedder.encode([query])
             D, I  = _index.search(np.array(q_vec, dtype="float32"), top_k)
 
             # Debug log — distances for each retrieved chunk
