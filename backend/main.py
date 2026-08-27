@@ -6,7 +6,7 @@ ZED AI Advisor — Backend
   POST /assessment    → Tab 2: Score + AI roadmap
   POST /sector-chat   → Tab 3: RAG over sector documents
   POST /translate     → Full-page UI translation
-  POST /whatsapp      → WhatsApp webhook (Twilio)
+  POST /whatsapp      → WhatsApp webhook (Meta Cloud API)
 
 Run: uvicorn main:app --reload --port 8000
 """
@@ -14,6 +14,7 @@ Run: uvicorn main:app --reload --port 8000
 import os
 import re
 import json
+import httpx
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,11 +34,10 @@ groq_client  = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 if not GROQ_API_KEY:
     print("WARNING: GROQ_API_KEY not set - fallback mode active")
 
-# ── Twilio WhatsApp config ──
-TWILIO_ACCOUNT_SID    = os.getenv("TWILIO_ACCOUNT_SID", "")
-TWILIO_AUTH_TOKEN      = os.getenv("TWILIO_AUTH_TOKEN", "")
-TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
-
+# ── Meta WhatsApp config ──
+META_WHATSAPP_TOKEN = os.getenv("META_WHATSAPP_TOKEN", "")
+META_PHONE_NUMBER_ID = os.getenv("META_PHONE_NUMBER_ID", "")
+META_WEBHOOK_VERIFY_TOKEN = os.getenv("META_WEBHOOK_VERIFY_TOKEN", "")
 from rag import retrieve
 
 DATA_DIR     = Path(__file__).parent.parent / "data"
@@ -531,45 +531,99 @@ Context:
     # Fallback
     return _wa_clean_for_whatsapp(chat_fallback(body_stripped))
 
+def _send_meta_whatsapp_message(phone: str, text: str):
+    """Send a message using Meta WhatsApp Cloud API."""
+    if not META_WHATSAPP_TOKEN or not META_PHONE_NUMBER_ID:
+        print("[WhatsApp] Missing Meta credentials. Cannot send message.")
+        return
+
+    url = f"https://graph.facebook.com/v20.0/{META_PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {META_WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    
+    # Meta requires the phone number without the '+' or 'whatsapp:' prefix
+    clean_phone = phone.replace("whatsapp:", "").replace("+", "")
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": clean_phone,
+        "type": "text",
+        "text": {"body": text}
+    }
+
+    try:
+        response = httpx.post(url, headers=headers, json=payload, timeout=10.0)
+        response.raise_for_status()
+        print(f"[WhatsApp] Sent message to {clean_phone}")
+    except Exception as e:
+        print(f"[WhatsApp] Failed to send message to {clean_phone}: {e}")
+        if isinstance(e, httpx.HTTPStatusError):
+            print(f"[WhatsApp] Error Response: {e.response.text}")
+
+@app.get("/whatsapp")
+async def verify_whatsapp_webhook(request: Request):
+    """
+    Meta Webhook Verification endpoint.
+    Meta sends a GET request with hub.mode, hub.challenge, and hub.verify_token.
+    """
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+
+    if mode and token:
+        if mode == "subscribe" and token == META_WEBHOOK_VERIFY_TOKEN:
+            print("[WhatsApp] Webhook verified successfully!")
+            return Response(content=challenge, media_type="text/plain")
+        else:
+            raise HTTPException(status_code=403, detail="Verification failed")
+    
+    raise HTTPException(status_code=400, detail="Missing parameters")
 
 @app.post("/whatsapp")
-async def whatsapp_webhook(
-    request: Request,
-    From: str = Form(default=""),
-    Body: str = Form(default=""),
-):
+async def whatsapp_webhook(request: Request):
     """
-    Twilio WhatsApp webhook endpoint.
-
-    Twilio sends POST with form data:
-    - From: "whatsapp:+91XXXXXXXXXX"
-    - Body: the user's message text
-
-    We return TwiML XML to reply.
-
-    Setup:
-    1. Sign up at twilio.com (free)
-    2. Go to Messaging > Try it out > WhatsApp Sandbox
-    3. Set webhook URL to: https://your-domain.com/whatsapp
-    4. Send the join code from your WhatsApp to the sandbox number
+    Meta WhatsApp webhook endpoint for receiving messages.
+    Meta sends POST with JSON payload.
     """
-    phone = From or "unknown"
-    message = Body or ""
+    try:
+        body = await request.json()
+    except Exception:
+        return Response(status_code=400)
 
-    if not message.strip():
-        reply = "Hi! I'm ZED Mitra. Ask me anything about ZED Certification. Type *help* for options."
+    # Check if this is a WhatsApp status update or message
+    if body.get("object") == "whatsapp_business_account":
+        for entry in body.get("entry", []):
+            for change in entry.get("changes", []):
+                value = change.get("value", {})
+                
+                # Check for messages
+                if "messages" in value:
+                    for msg in value["messages"]:
+                        # Extract phone and message text
+                        phone = msg.get("from", "unknown")
+                        
+                        if msg.get("type") == "text":
+                            message = msg["text"].get("body", "")
+                        else:
+                            message = "" # Ignore non-text for now
+
+                        if not message.strip():
+                            reply = "Hi! I'm ZED Mitra. Ask me anything about ZED Certification. Type *help* for options."
+                        else:
+                            try:
+                                reply = _wa_process_message(phone, message)
+                            except Exception as e:
+                                print(f"[WhatsApp] Error processing message from {phone}: {e}")
+                                reply = "Sorry, I encountered an error. Please try again or type *help*."
+
+                        print(f"[WhatsApp] {phone}: {message[:80]}... → {reply[:80]}...")
+                        
+                        # Send reply via Meta Graph API
+                        _send_meta_whatsapp_message(phone, reply)
+
+        return Response(status_code=200)
     else:
-        try:
-            reply = _wa_process_message(phone, message)
-        except Exception as e:
-            print(f"[WhatsApp] Error processing message from {phone}: {e}")
-            reply = "Sorry, I encountered an error. Please try again or type *help*."
-
-    print(f"[WhatsApp] {phone}: {message[:80]}... → {reply[:80]}...")
-
-    # Return TwiML XML response
-    twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Message>{reply}</Message>
-</Response>"""
-    return Response(content=twiml, media_type="application/xml")
+        # Not a WhatsApp event
+        return Response(status_code=404)
