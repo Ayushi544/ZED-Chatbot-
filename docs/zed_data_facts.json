@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "source": "ZED official registry, NIC Divisions 10-12 (Food, Beverage, Tobacco)",
+    "total_records": 93363,
+    "important_note": "This data covers ONLY food/beverage/tobacco sectors, not all ZED MSMEs."
+  },
+  "qa_pairs": [
+    {
+      "q": "How many MSMEs are in this dataset / registered under ZED for food, beverage and tobacco?",
+      "a": "There are 93,363 MSMEs registered under ZED in the food, beverage and tobacco sectors (NIC 10-12)."
+    },
+    {
+      "q": "How many are certified vs just registered?",
+      "a": "49,536 are Certified and 43,827 are Registered (pledge taken, not yet certified)."
+    },
+    {
+      "q": "How many Bronze, Silver and Gold certified units are there?",
+      "a": "Bronze: 50,855 units. Silver: 1,052 units. Gold: 611 units. Most units stop at Bronze."
+    },
+    {
+      "q": "Which states have the most ZED MSMEs in these sectors?",
+      "a": "Top 5 states: KARNATAKA (14,140), BIHAR (13,562), GUJARAT (8,231), UTTAR PRADESH (7,891), PUNJAB (5,474)."
+    },
+    {
+      "q": "How many women-owned MSMEs are there?",
+      "a": "22,282 units are women-owned, about 24% of the total."
+    },
+    {
+      "q": "What share are Micro enterprises?",
+      "a": "81,706 units (88%) are Micro enterprises; the rest are Small and Medium."
+    },
+    {
+      "q": "Which sectors are covered and how many in each?",
+      "a": "10-Manufacture of food products: 80,678; 12-Manufacture of tobacco products: 7,216; 11-Manufacture of beverages: 5,469."
+    }
+  ]
+}
